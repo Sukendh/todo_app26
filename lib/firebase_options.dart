@@ -4,6 +4,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Flutter apps.
 ///
@@ -11,6 +12,7 @@ import 'package:flutter/foundation.dart'
 /// ```dart
 /// import 'firebase_options.dart';
 /// // ...
+/// await dotenv.load(fileName: ".env");
 /// await Firebase.initializeApp(
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
@@ -50,20 +52,20 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCGQ3Ueb3Vetz-WGvbsi3X5ODQ0K1RGCyE',
-    appId: '1:963254573064:android:636ad93837ed6113ffd9bd',
-    messagingSenderId: '963254573064',
-    projectId: 'todo-app26-ba985',
-    storageBucket: 'todo-app26-ba985.firebasestorage.app',
-  );
+  static FirebaseOptions get android => FirebaseOptions(
+        apiKey: dotenv.get('FIREBASE_ANDROID_API_KEY'),
+        appId: '1:963254573064:android:636ad93837ed6113ffd9bd',
+        messagingSenderId: '963254573064',
+        projectId: 'todo-app26-ba985',
+        storageBucket: 'todo-app26-ba985.firebasestorage.app',
+      );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDbHjirq2dfOnWl8WBRvzVWw-ccLcFjujk',
-    appId: '1:963254573064:ios:7fc4ab22dc9e1150ffd9bd',
-    messagingSenderId: '963254573064',
-    projectId: 'todo-app26-ba985',
-    storageBucket: 'todo-app26-ba985.firebasestorage.app',
-    iosBundleId: 'com.herody.todoapp26',
-  );
+  static FirebaseOptions get ios => FirebaseOptions(
+        apiKey: dotenv.get('FIREBASE_IOS_API_KEY'),
+        appId: '1:963254573064:ios:7fc4ab22dc9e1150ffd9bd',
+        messagingSenderId: '963254573064',
+        projectId: 'todo-app26-ba985',
+        storageBucket: 'todo-app26-ba985.firebasestorage.app',
+        iosBundleId: 'com.herody.todoapp26',
+      );
 }
