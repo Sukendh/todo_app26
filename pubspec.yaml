@@ -85,7 +85,7 @@ flutter:
 
 flutter_launcher_icons:
   # The path to your master PNG
-  image_path: "assets/icon/app_icon.png"
+  image_path: "assets/icon/todo_app_icon.png"
 
   # Whether to generate icons for Android
   android: true
