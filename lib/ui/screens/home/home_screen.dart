@@ -15,7 +15,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -33,83 +34,100 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('My Tasks', style: Theme.of(context).textTheme.displayLarge),
-                      Text(DateFormat('EEEE, MMM d').format(DateTime.now()), 
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white54)),
-                    ],
-                  ),
-                  GestureDetector(
-                    onTap: () => _showLogoutDialog(context),
-                    child: const CircleAvatar(
-                      radius: 24,
-                      backgroundImage: NetworkImage('https://via.placeholder.com/150'), 
+        child: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverPadding(
+                padding: const EdgeInsets.all(20.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Header
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'My Tasks',
+                              style: Theme.of(context).textTheme.displayLarge,
+                            ),
+                            Text(
+                              DateFormat('EEEE, MMM d').format(DateTime.now()),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.copyWith(color: Colors.white54),
+                            ),
+                          ],
+                        ),
+                        IconButton(
+                          onPressed: () => _showLogoutDialog(context),
+                          icon: const Icon(
+                            Icons.logout_rounded,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
+                    const SizedBox(height: 32),
 
-              // Summary Cards (Responsive Layout)
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  return _buildSummaryCards(context);
-                },
-              ),
-              const SizedBox(height: 32),
-
-              // Tabs
-              TabBar(
-                controller: _tabController,
-                indicatorColor: AppColors.primary,
-                indicatorSize: TabBarIndicatorSize.label,
-                labelColor: AppColors.primary,
-                unselectedLabelColor: Colors.white54,
-                dividerColor: Colors.transparent,
-                labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                tabs: const [
-                  Tab(text: 'Active'),
-                  Tab(text: 'Completed'),
-                ],
-              ),
-              const SizedBox(height: 24),
-
-              // Task List
-              Expanded(
-                child: BlocBuilder<TaskBloc, TaskState>(
-                  builder: (context, state) {
-                    if (state is TaskLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (state is TasksLoaded) {
-                      final activeTasks = state.tasks.where((t) => !t.isCompleted).toList();
-                      final completedTasks = state.tasks.where((t) => t.isCompleted).toList();
-                      
-                      return TabBarView(
-                        controller: _tabController,
-                        children: [
-                          _buildTaskList(activeTasks, 'Active'),
-                          _buildTaskList(completedTasks, 'Completed'),
-                        ],
-                      );
-                    } else if (state is TaskOperationError) {
-                      return Center(child: Text('Error: ${state.message}'));
-                    }
-                    return const Center(child: Text('No tasks yet.'));
-                  },
+                    // Summary Cards
+                    _buildSummaryCards(context),
+                    const SizedBox(height: 32),
+                  ]),
                 ),
               ),
-            ],
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _SliverAppBarDelegate(
+                  TabBar(
+                    controller: _tabController,
+                    indicatorColor: AppColors.primary,
+                    indicatorSize: TabBarIndicatorSize.label,
+                    labelColor: AppColors.primary,
+                    unselectedLabelColor: Colors.white54,
+                    dividerColor: Colors.transparent,
+                    labelStyle: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    tabs: const [
+                      Tab(text: 'Active'),
+                      Tab(text: 'Completed'),
+                    ],
+                  ),
+                ),
+              ),
+            ];
+          },
+          body: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: BlocBuilder<TaskBloc, TaskState>(
+              builder: (context, state) {
+                if (state is TaskLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (state is TasksLoaded) {
+                  final activeTasks = state.tasks
+                      .where((t) => !t.isCompleted)
+                      .toList();
+                  final completedTasks = state.tasks
+                      .where((t) => t.isCompleted)
+                      .toList();
+
+                  return TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildTaskList(activeTasks, 'Active'),
+                      _buildTaskList(completedTasks, 'Completed'),
+                    ],
+                  );
+                } else if (state is TaskOperationError) {
+                  return Center(child: Text('Error: ${state.message}'));
+                }
+                return const Center(child: Text('No tasks yet.'));
+              },
+            ),
           ),
         ),
       ),
@@ -135,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           total = state.tasks.length;
           completed = state.tasks.where((t) => t.isCompleted).length;
         }
-        
+
         return Row(
           children: [
             _buildSummaryCard(
@@ -156,23 +174,44 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildSummaryCard(String title, String count, IconData icon, {Color? borderColor}) {
+  Widget _buildSummaryCard(
+    String title,
+    String count,
+    IconData icon, {
+    Color? borderColor,
+  }) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
           borderRadius: BorderRadius.circular(24),
-          border: borderColor != null ? Border.all(color: borderColor, width: 1.5) : null,
+          border: borderColor != null
+              ? Border.all(color: borderColor, width: 1.5)
+              : null,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: AppColors.primary, size: 28),
             const SizedBox(height: 16),
-            Text(title, style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+            Text(
+              title,
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(count, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              count,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
       ),
@@ -203,7 +242,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       padding: const EdgeInsets.only(bottom: 16, top: 8),
       child: Text(
         title,
-        style: const TextStyle(color: Colors.white38, fontWeight: FontWeight.bold, letterSpacing: 1.2),
+        style: const TextStyle(
+          color: Colors.white38,
+          fontWeight: FontWeight.bold,
+          letterSpacing: 1.2,
+        ),
       ),
     );
   }
@@ -215,7 +258,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         title: const Text('Log Out?'),
         content: const Text('Are you sure you want to exit?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               context.read<AuthBloc>().add(SignOutRequested());
@@ -226,5 +272,30 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         ],
       ),
     );
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate(this._tabBar);
+
+  final TabBar _tabBar;
+
+  @override
+  double get minExtent => _tabBar.preferredSize.height;
+  @override
+  double get maxExtent => _tabBar.preferredSize.height;
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: AppColors.background,
+      child: _tabBar,
+    );
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return false;
   }
 }

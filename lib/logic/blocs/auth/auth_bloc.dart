@@ -2,6 +2,7 @@ import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/models/auth_user.dart';
 import '../../../data/services/auth_service.dart';
+import '../../../core/utils/auth_error_mapper.dart';
 
 // Events
 abstract class AuthEvent extends Equatable {
@@ -68,7 +69,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final user = await authService.signUp(event.email, event.password);
         emit(Authenticated(user));
       } catch (e) {
-        emit(AuthError(e.toString()));
+        emit(AuthError(AuthErrorMapper.mapMessage(e.toString())));
       }
     });
 
@@ -78,7 +79,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final user = await authService.signIn(event.email, event.password);
         emit(Authenticated(user));
       } catch (e) {
-        emit(AuthError(e.toString()));
+        emit(AuthError(AuthErrorMapper.mapMessage(e.toString())));
       }
     });
 
@@ -88,7 +89,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         final user = await authService.signInWithGoogle();
         emit(Authenticated(user));
       } catch (e) {
-        emit(AuthError(e.toString()));
+        emit(AuthError(AuthErrorMapper.mapMessage(e.toString())));
       }
     });
 

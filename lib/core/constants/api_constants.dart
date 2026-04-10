@@ -1,7 +1,15 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiConstants {
-  static final String apiKey = dotenv.get('FIREBASE_API_KEY', fallback: 'YOUR_FIREBASE_API_KEY');
+  static String get apiKey {
+    if (kIsWeb) return dotenv.get('FIREBASE_WEB_API_KEY', fallback: '');
+    if (Platform.isAndroid) return dotenv.get('FIREBASE_ANDROID_API_KEY', fallback: '');
+    if (Platform.isIOS) return dotenv.get('FIREBASE_IOS_API_KEY', fallback: '');
+    return dotenv.get('FIREBASE_API_KEY', fallback: 'YOUR_FIREBASE_API_KEY');
+  }
+
   static final String projectId = dotenv.get('FIREBASE_PROJECT_ID', fallback: 'YOUR_PROJECT_ID');
 
   static const String authBaseUrl = 'https://identitytoolkit.googleapis.com/v1/accounts:';
